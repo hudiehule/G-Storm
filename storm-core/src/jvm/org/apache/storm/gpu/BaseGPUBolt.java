@@ -1,6 +1,7 @@
-package org.apache.storm.topology.base;
+package org.apache.storm.gpu;
 
 import org.apache.storm.topology.IRichBolt;
+import org.apache.storm.topology.base.BaseRichBolt;
 
 /**
  * Created by Administrator on 2017/7/27.
