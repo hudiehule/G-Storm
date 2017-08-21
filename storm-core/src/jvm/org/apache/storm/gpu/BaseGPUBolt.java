@@ -17,7 +17,7 @@ import java.util.Map;
  * Created by Administrator on 2017/7/27.
  * a GPU bolt that can be used to build topology by users
  */
-public abstract class BaseGPUBolt extends BaseRichBolt{
+public abstract class BaseGPUBolt implements IRichBolt{
     private static final Logger LOG = LoggerFactory.getLogger(BaseGPUBolt.class);
     public class HostProgram{
         cl_platform_id platform;

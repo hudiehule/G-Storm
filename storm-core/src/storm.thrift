@@ -104,6 +104,12 @@ struct Bolt {
   2: required ComponentCommon common;
 }
 
+//Add by Die_Hu
+struct GPUBolt {
+  1: required ComponentObject gpu_bolt_object;
+  2: required ComponentCommon comman;
+}
+
 // not implemented yet
 // this will eventually be the basis for subscription implementation in storm
 struct StateSpoutSpec {
@@ -116,8 +122,9 @@ struct StormTopology {
   // #workers to use is in conf
   1: required map<string, SpoutSpec> spouts;
   2: required map<string, Bolt> bolts;
-  3: required map<string, StateSpoutSpec> state_spouts;
-  4: optional list<binary> worker_hooks;
+  3: required map<string, GPUBolt> GPUBolts;  //Add by Die_Hu
+  4: required map<string, StateSpoutSpec> state_spouts;
+  5: optional list<binary> worker_hooks;
 }
 
 exception AlreadyAliveException {
@@ -212,9 +219,17 @@ struct SpoutStats {
   3: required map<string, map<string, double>> complete_ms_avg;
 }
 
+//Add by Die_Hu
+struct GPUBoltStats {
+  1: required map<string, map<string, i64>> acked;
+  2: required map<string, map<string, i64>> failed;
+  3: required map<string, map<string, i64>> batch_size; // 实际的一个batch的数据量
+}
+
 union ExecutorSpecificStats {
   1: BoltStats bolt;
   2: SpoutStats spout;
+  3: GPUBoltStats gpu_bolt;  // Add by Die_Hu
 }
 
 // Stats are a map from the time window (all time or a number indicating number of seconds in the window)
@@ -284,14 +299,23 @@ struct BoltAggregateStats {
 4: optional double capacity;
 }
 
+// Add by Die_Hu
+struct GPUBoltAggregateStats {
+1: optional double batch_execute_latency_ms;
+2: optional i64    executed;
+3: optional double capacity;
+}
+
 union SpecificAggregateStats {
 1: BoltAggregateStats  bolt;
 2: SpoutAggregateStats spout;
+3: GPUBoltAggregateStats gpu_bolt;
 }
 
 enum ComponentType {
   BOLT = 1,
-  SPOUT = 2
+  SPOUT = 2,
+  GPUBOLT = 3 // Add by Die_Hu
 }
 
 struct ComponentAggregateStats {

@@ -63,8 +63,8 @@ public abstract class BaseStatefulBoltExecutor implements IRichBolt {
     private int getCheckpointInputTaskCount(TopologyContext context) {
         int count = 0;
         for (GlobalStreamId inputStream : context.getThisSources().keySet()) {
-            if (CHECKPOINT_STREAM_ID.equals(inputStream.get_streamId())) {
-                count += context.getComponentTasks(inputStream.get_componentId()).size();
+            if (CHECKPOINT_STREAM_ID.equals(inputStream.getStreamId())) {
+                count += context.getComponentTasks(inputStream.getComponentId()).size();
             }
         }
         return count;

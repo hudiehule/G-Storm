@@ -206,9 +206,9 @@ public class StormSubmitter {
 
         Map<String,String> passedCreds = new HashMap<>();
         if (opts != null) {
-            Credentials tmpCreds = opts.get_creds();
+            Credentials tmpCreds = opts.getCreds();
             if (tmpCreds != null) {
-                passedCreds = tmpCreds.get_creds();
+                passedCreds = tmpCreds.getCreds();
             }
         }
         Map<String,String> fullCreds = populateCredentials(conf, passedCreds);
@@ -216,7 +216,7 @@ public class StormSubmitter {
             if (opts == null) {
                 opts = new SubmitOptions(TopologyInitialStatus.ACTIVE);
             }
-            opts.set_creds(new Credentials(fullCreds));
+            opts.setCreds(new Credentials(fullCreds));
         }
         try {
             if(localNimbus!=null) {
@@ -244,7 +244,7 @@ public class StormSubmitter {
                     }
                     LOG.info("Finished submitting topology: " + name);
                 } catch (InvalidTopologyException e) {
-                    LOG.warn("Topology submission exception: " + e.get_msg());
+                    LOG.warn("Topology submission exception: " + e.getMsg());
                     throw e;
                 } catch (AlreadyAliveException e) {
                     LOG.warn("Topology already alive exception", e);
@@ -369,8 +369,8 @@ public class StormSubmitter {
     private static boolean topologyNameExists(Map conf, String name, String asUser) {
         try (NimbusClient client = NimbusClient.getConfiguredClientAs(conf, asUser)) {
             ClusterSummary summary = client.getClient().getClusterInfo();
-            for(TopologySummary s : summary.get_topologies()) {
-                if(s.get_name().equals(name)) {
+            for(TopologySummary s : summary.getTopologies()) {
+                if(s.getName().equals(name)) {
                     return true;
                 }
             }
