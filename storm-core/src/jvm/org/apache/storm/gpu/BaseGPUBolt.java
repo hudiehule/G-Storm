@@ -11,6 +11,7 @@ import org.apache.storm.gpu.opencl.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -19,6 +20,19 @@ import java.util.Map;
  */
 public abstract class BaseGPUBolt implements IRichBolt{
     private static final Logger LOG = LoggerFactory.getLogger(BaseGPUBolt.class);
+    private HostProgram hostProgram;
+    private HashMap<Class,Integer> tupleVauleArguement = new HashMap<>(); //传入一个tuple的类型数据例如：int float 或者object
+
+    private Batcher batcher;
+    private BufferManager bufferManager;
+    private IndexBuilder indexBuilder;
+    public BaseGPUBolt(String kernelName,String kernelFilePath){
+        hostProgram = new HostProgram(kernelName,kernelFilePath);
+        tupleVauleArguement.put(int.class,1);
+        for (Map.Entry<Class, Integer> entry : tupleVauleArguement.entrySet()){
+
+        }
+    }
     public class HostProgram{
         cl_platform_id platform;
         cl_device_id[] deviceIds;
@@ -51,8 +65,8 @@ public abstract class BaseGPUBolt implements IRichBolt{
                     null, null, error);
             Utils.checkEror(error[1],"Failed to create the context");
 
-            queue = clCreateCommandQueue(
-                    context, deviceIds[0], 0, error);
+            queue = clCreateCommandQueueWithProperties(
+                    context, deviceIds[0], null, error);
             Utils.checkEror(error[1],"Failed to create the commandQueue");
 
             kernelFile = Utils.loadKernelFileByPath(kernelFilePath);
@@ -73,16 +87,14 @@ public abstract class BaseGPUBolt implements IRichBolt{
     }
     public void prepare(Map stormConf, TopologyContext topologyContext) {
         /*
+        * initial the Batcher, BufferManager and IndexBuilder
         * initial the platform and device
         * create the objects of  openCL host
-        *
-        *
-        *
-        *
         * */
+        hostProgram.initCL();
 
     }
-    public abstract Values getTupleValueSize();
+
     public void execute(Tuple tuple){
     /*
        来一个tuple 使用batcher 将其放入global 内存中 tuple的个数达到设定值以后 将这一批tuple
@@ -93,4 +105,5 @@ public abstract class BaseGPUBolt implements IRichBolt{
     @Override
     public void cleanup() {
     }
+    public abstract Map preProcess(Tuple tuple);
 }

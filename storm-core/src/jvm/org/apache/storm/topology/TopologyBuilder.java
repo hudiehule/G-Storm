@@ -20,6 +20,7 @@ package org.apache.storm.topology;
 import org.apache.storm.Config;
 import org.apache.storm.generated.*;
 import org.apache.storm.gpu.BaseGPUBolt;
+import org.apache.storm.gpu.GPUBoltExecutor;
 import org.apache.storm.grouping.CustomStreamGrouping;
 import org.apache.storm.grouping.PartialKeyGrouping;
 import org.apache.storm.hooks.IWorkerHook;
@@ -221,7 +222,7 @@ public class TopologyBuilder {
      * @throws IllegalArgumentException if {@code parallelism_hint} is not positive
      */
     public BoltDeclarer setGPUBolt(String id, BaseGPUBolt bolt) throws IllegalArgumentException {
-        return setBolt(id, bolt, null);
+        return setBolt(id, new GPUBoltExecutor(bolt), null);
     }
 
     /**
