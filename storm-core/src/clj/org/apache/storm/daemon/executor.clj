@@ -144,13 +144,15 @@
                   topo-conf)]))
          (into {})
          (HashMap.)))
-
+;; modify by hudie
 (defn executor-type [^WorkerTopologyContext context component-id]
   (let [topology (.getRawTopology context)
         spouts (.get_spouts topology)
-        bolts (.get_bolts topology)]
+        bolts (.get_bolts topology)
+        GPUBolts (.getGPUBolts topology)]
     (cond (contains? spouts component-id) :spout
           (contains? bolts component-id) :bolt
+          (contains? GPUBolts component-id) :gpuBolt
           :else (throw-runtime "Could not find " component-id " in topology " topology))))
 
 (defn executor-selector [executor-data & _] (:type executor-data))
@@ -848,7 +850,9 @@
       :kill-fn (:report-error-and-die executor-data)
       :factory? true
       :thread-name (str component-id "-executor" (:executor-id executor-data)))]))
-
+;;create a gpubolt thread ,add by hudie
+(defmethod mk-threads :gpuBolt [executor-data task-datas initial-credentials]
+  )
 (defmethod close-component :spout [executor-data spout]
   (.close spout))
 
