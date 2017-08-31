@@ -21,7 +21,8 @@ import java.util.Map;
 public abstract class BaseGPUBolt implements IRichBolt{
     private static final Logger LOG = LoggerFactory.getLogger(BaseGPUBolt.class);
     private HostProgram hostProgram;
-    private HashMap<String,Integer> tupleArgumentType = new HashMap<>(); //传入一个tuple的类型数据例如：int float 或者object
+    private HashMap<String,Integer> inputTupleArgumentType = new HashMap<>(); //传入一个tuple的类型数据例如：int float 或者object
+    private HashMap<String,Integer> outputTupleArgumentType = new HashMap<>(); //传入一个tuple的类型数据例如：int float 或者object
     private int batch = 1000;
     private Batcher batcher;
     private BufferManager bufferManager;
@@ -89,15 +90,20 @@ public abstract class BaseGPUBolt implements IRichBolt{
         * initial the Batcher, BufferManager and IndexBuilder
         * initial the platform and device
         * create the objects of  openCL host
-        * */
+        *
+        */
         hostProgram.initCL();
         userPrepare(stormConf,topologyContext);//用户自定义的prepare函数
-        tupleArgumentType = setTupleArgumentType();//初始化该bolt要处理的tuple包含的参数类型和大小
-        if(tupleArgumentType.isEmpty()){
-            LOG.error("Undefined tuple argument type");
+        inputTupleArgumentType = setInputTupleArgumentType();//初始化该bolt要处理的tuple包含的参数类型和大小
+        if(inputTupleArgumentType.isEmpty()){
+            LOG.error("Undefined input tuple argument type");
+        }
+        outputTupleArgumentType = setOutputTupleArgumentType();
+        if(outputTupleArgumentType.isEmpty()){
+            LOG.error("Undefined output tuple argument type");
         }
         batcher = new Batcher(batch);
-        batcher.initBuffer(tupleArgumentType);
+        batcher.initBuffer(inputTupleArgumentType);
     }
 
     public void execute(Tuple tuple){
@@ -111,6 +117,7 @@ public abstract class BaseGPUBolt implements IRichBolt{
     public void cleanup() {
     }
 
-    public abstract HashMap<String,Integer> setTupleArgumentType(); //必须要实现的接口 获取这个bolt要处理的数据类型和大小
+    public abstract HashMap<String,Integer> setInputTupleArgumentType(); //必须要实现的接口 获取这个bolt要处理的数据类型和大小
+    public abstract HashMap<String,Integer> setOutputTupleArgumentType();
     public abstract void userPrepare(Map stormConf, TopologyContext topologyContext);//用户自定义prepare函数
 }

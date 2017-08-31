@@ -11,7 +11,7 @@ import java.util.Map;
 public class Batcher {
     private cl_mem hostMem;
     private int batchSize;
-    private Pointer[] hostMemPointers;
+
     Batcher(int size){
        batchSize = size;
     }
@@ -26,8 +26,16 @@ public class Batcher {
                 short[] shortBuffer = new short[batchSize];
             }else if(c.equals("float")){
                 float[] floatBuffer = new float[batchSize];
+            }else if(c.equals("double")){
+                double[] doubleBuffer = new double[batchSize];
+            }else if(c.equals("Character")){
+                Character[] characterBuffer = new Character[batchSize];
+            }else if(c.equals("byte")){
+                byte[] byteBuffer = new byte[batchSize];
             }
         }
       return true;
     }
+
+    public
 }

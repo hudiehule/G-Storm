@@ -8,6 +8,8 @@ import java.nio.Buffer;
  * Created by Administrator on 2017/7/27.
  */
 public class BufferManager {
+    private Buffer tupleBuffer;
+    private Buffer indexBuffer;
     /**
       Construct a tuple buffer of sufficient size in host memory to hold incoming tuples.
     * */
