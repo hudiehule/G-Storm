@@ -25,8 +25,7 @@ public abstract class BaseGPUBolt implements IRichBolt{
     private HashMap<String,Integer> outputTupleArgumentType = new HashMap<>(); //传入一个tuple的类型数据例如：int float 或者object
     private int batch = 1000;
     private Batcher batcher;
-    private BufferManager bufferManager;
-    private IndexBuilder indexBuilder;
+
     public BaseGPUBolt(String kernelName,String kernelFilePath,int batchSize){
         hostProgram = new HostProgram(kernelName,kernelFilePath);
         batch = batchSize;

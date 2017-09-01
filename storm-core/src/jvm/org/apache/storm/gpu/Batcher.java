@@ -1,5 +1,6 @@
 package org.apache.storm.gpu;
 
+import org.apache.storm.tuple.Tuple;
 import org.jocl.*;
 
 import java.util.HashMap;
@@ -11,6 +12,7 @@ import java.util.Map;
 public class Batcher {
     private cl_mem hostMem;
     private int batchSize;
+    private BufferManager bufferManager;
 
     Batcher(int size){
        batchSize = size;
@@ -37,5 +39,20 @@ public class Batcher {
       return true;
     }
 
-    public
+    /**
+     * call the BufferManager to add one tuple to the host tupleBuffer
+     * @param tuple incomming tuple form upstream
+     */
+    public void addTuple(Tuple tuple){
+
+    }
+
+    /**
+     * call the BufferManager to copy the tuples from the host memery to the device memory
+     */
+    public void transferTuples(){
+
+    }
+
+
 }
