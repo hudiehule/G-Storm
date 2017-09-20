@@ -11,25 +11,62 @@ import org.apache.storm.gpu.opencl.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
  * Created by Administrator on 2017/7/27.
- * a GPU bolt that can be used to build topology by users
+ * a GPU bolt that can be used to build topology by users,only process tuples and generate new tuples
+ * in which all the fields are primitive data type.
  */
 public abstract class BaseGPUBolt implements IRichBolt{
     private static final Logger LOG = LoggerFactory.getLogger(BaseGPUBolt.class);
     private HostProgram hostProgram;
-    private HashMap<String,Integer> inputTupleArgumentType = new HashMap<>(); //传入一个tuple的类型数据例如：int float 或者object
-    private HashMap<String,Integer> outputTupleArgumentType = new HashMap<>(); //传入一个tuple的类型数据例如：int float 或者object
+    private List<String> inputTupleArgumentType = new ArrayList<>(); //传入一个tuple的类型数据例如：int float 或者object
+    private List<String> outputTupleArgumentType = new ArrayList<>(); //传入一个tuple的类型数据例如：int float 或者object
     private int batch = 1000;
     private Batcher batcher;
 
-    public BaseGPUBolt(String kernelName,String kernelFilePath,int batchSize){
+    public BaseGPUBolt(String kernelName,String kernelFilePath,int batchSize,
+                       List<String> inputTupleMap,List<String> outputTupleMap){
         hostProgram = new HostProgram(kernelName,kernelFilePath);
         batch = batchSize;
+        inputTupleArgumentType = inputTupleMap;
+        outputTupleArgumentType = outputTupleMap;
     }
+
+    public void prepare(Map stormConf, TopologyContext topologyContext) {
+        /*
+        * initial the Batcher, BufferManager and IndexBuilder
+        * initial the platform and device
+        * create the objects of  openCL host
+        *
+        */
+        hostProgram.initCL();
+        batcher = new Batcher(batch);
+        CommonUtils.checkTupleArgumentType(inputTupleArgumentType,outputTupleArgumentType);
+
+    }
+
+    public void execute(Tuple tuple){
+    /*
+       来一个tuple 使用batcher 将其放入global 内存中 tuple的个数达到设定值以后 将这一批tuple
+       发送给GPU进行处理
+    */
+
+    }
+    @Override
+    public void cleanup() {
+    }
+
+
+/*
+    public abstract HashMap<String,Integer> setInputTupleArgumentType(); //必须要实现的接口 获取这个bolt要处理的数据类型和大小
+    public abstract HashMap<String,Integer> setOutputTupleArgumentType();
+    */
+    public abstract void userPrepare(Map stormConf, TopologyContext topologyContext);// user defined
 
     public class HostProgram{
         cl_platform_id platform;
@@ -83,40 +120,4 @@ public abstract class BaseGPUBolt implements IRichBolt{
             return true;
         }
     }
-
-    public void prepare(Map stormConf, TopologyContext topologyContext) {
-        /*
-        * initial the Batcher, BufferManager and IndexBuilder
-        * initial the platform and device
-        * create the objects of  openCL host
-        *
-        */
-        hostProgram.initCL();
-        userPrepare(stormConf,topologyContext);//用户自定义的prepare函数
-        inputTupleArgumentType = setInputTupleArgumentType();//初始化该bolt要处理的tuple包含的参数类型和大小
-        if(inputTupleArgumentType.isEmpty()){
-            LOG.error("Undefined input tuple argument type");
-        }
-        outputTupleArgumentType = setOutputTupleArgumentType();
-        if(outputTupleArgumentType.isEmpty()){
-            LOG.error("Undefined output tuple argument type");
-        }
-        batcher = new Batcher(batch);
-        batcher.initBuffer(inputTupleArgumentType);
-    }
-
-    public void execute(Tuple tuple){
-    /*
-       来一个tuple 使用batcher 将其放入global 内存中 tuple的个数达到设定值以后 将这一批tuple
-       发送给GPU进行处理
-    */
-
-    }
-    @Override
-    public void cleanup() {
-    }
-
-    public abstract HashMap<String,Integer> setInputTupleArgumentType(); //必须要实现的接口 获取这个bolt要处理的数据类型和大小
-    public abstract HashMap<String,Integer> setOutputTupleArgumentType();
-    public abstract void userPrepare(Map stormConf, TopologyContext topologyContext);//用户自定义prepare函数
 }

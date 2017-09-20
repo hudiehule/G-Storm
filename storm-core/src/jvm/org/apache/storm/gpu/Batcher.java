@@ -4,6 +4,7 @@ import org.apache.storm.tuple.Tuple;
 import org.jocl.*;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -17,28 +18,10 @@ public class Batcher {
     Batcher(int size){
        batchSize = size;
     }
-    public boolean initBuffer(HashMap<String,Integer> tupleArguementMap){
-        for(Map.Entry<String, Integer> entry:tupleArguementMap.entrySet()){
-            String c = entry.getKey();
-            if(c.equals("int")){
-                int[] intBuffer = new int[batchSize];
-            }else if(c.equals("long")){
-                long[] longBuffer = new long[batchSize];
-            }else if(c.equals("short")){
-                short[] shortBuffer = new short[batchSize];
-            }else if(c.equals("float")){
-                float[] floatBuffer = new float[batchSize];
-            }else if(c.equals("double")){
-                double[] doubleBuffer = new double[batchSize];
-            }else if(c.equals("Character")){
-                Character[] characterBuffer = new Character[batchSize];
-            }else if(c.equals("byte")){
-                byte[] byteBuffer = new byte[batchSize];
-            }
-        }
-      return true;
-    }
 
+    public BufferManager getBufferManager(){
+        return bufferManager;
+    }
     /**
      * call the BufferManager to add one tuple to the host tupleBuffer
      * @param tuple incomming tuple form upstream
@@ -54,5 +37,11 @@ public class Batcher {
 
     }
 
+    /**
+     * copie the output data from the GPU back to the host
+     */
+    public void getBatchResult(){
+
+    }
 
 }
